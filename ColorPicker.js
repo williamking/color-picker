@@ -4,14 +4,19 @@
 */
 
 var ColorPicker = function() {
-	this.pickerRG = document.createElement("canvas");
-	this.pickerB = document.createElement("canvas");
-	this.dom = document.createElement("div");
+    this.RGB_picker = function() {
+	    this.pickerRG = document.createElement("canvas");
+	    this.pickerB = document.createElement("canvas");
+	    this.dom = document.createElement("div");
+        this.dom.className = "color-picker"
+        this.dom.append(this.pickerRG);
+        this.dom.append(this.pickerB);
+    }   
 }
 
-ColorPicker.prototype = {
-	add: function(element) {
-		element.append(this.pickerRG);
+ColorPicker.RGB_picker.prototype = {
+	addTo: function(element) {
+		element.append(this.dom);
+	},
 
-	}
 }
