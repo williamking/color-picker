@@ -3,23 +3,34 @@
     Description: A plug-in component for picking color
 */
 
+function windowTocanvas(canvas, x, y) {
+    var bbox = canvs.getBoundingClientRect();
+    return {
+        x: x - (canvas.width / bbox.width),
+        y: y - (canvas.height / bbox.height)
+    };
+}
+
 var ColorPicker =   {
     RGB_picker: function() {
 	    this.pickerRG = document.createElement("canvas");
 	    this.pickerB = document.createElement("canvas");
 	    this.dom = document.createElement("div");
+        this.sample = document.createElement("div");
+        this.sample.className = "color-sample"
         this.dom.className = "color-picker";
         this.pickerRG.className = "rg-picker";
         this.pickerB.className = 'b-picker';
         this.dom.appendChild(this.pickerRG);
         this.dom.appendChild(this.pickerB);
+        this.dom.appendChild(this.sample);
  
         this.RGCanvas = this.pickerRG.getContext('2d');
         this.BCanvas = this.pickerB.getContext('2d');
 
         this.PickRGEvent = (function(that) {
             return function(e) {
-
+                var loc = windowTocanvas(that.RGCanvas, e.clientX, e.clientY);           
             }
         })(this);
 

@@ -1,4 +1,19 @@
+.color-picker {
+    position: relative;
+}
+
 .color-picker canvas {
-	display: block;
-	margin: 2px;
+	margin: 5px;
+}
+
+.color-picker canvas:hover {
+    cursor: pointer;
+}
+
+.color-picker .color-sample {
+    display: inline-block;
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    margin: 5px;
 }
