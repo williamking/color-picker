@@ -4,10 +4,10 @@
 */
 
 function windowTocanvas(canvas, x, y) {
-    var bbox = canvs.getBoundingClientRect();
+    var bbox = canvas.getBoundingClientRect();
     return {
-        x: x - (canvas.width / bbox.width),
-        y: y - (canvas.height / bbox.height)
+        x: x - bbox.left * (canvas.width / bbox.width),
+        y: y - bbox.top * (canvas.height / bbox.height)
     };
 }
 
@@ -24,14 +24,32 @@ var ColorPicker =   {
         this.dom.appendChild(this.pickerRG);
         this.dom.appendChild(this.pickerB);
         this.dom.appendChild(this.sample);
+
+        this.currentColor = '#000000';
  
         this.RGCanvas = this.pickerRG.getContext('2d');
         this.BCanvas = this.pickerB.getContext('2d');
 
-        this.PickRGEvent = (function(that) {
+        this.colorHex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B' , 'C', 'D', 'E', 'F'];
+
+        this.pickRGEvent = (function(that) {
             return function(e) {
-                var loc = windowTocanvas(that.RGCanvas, e.clientX, e.clientY);           
+                var loc = windowTocanvas(that.pickerRG, e.clientX, e.clientY);
+                var colorData = that.RGCanvas.getImageData(loc.x, loc.y, 1, 1);
+                var hexColor = that.getColorHex(colorData.data[0], colorData.data[1], colorData.data[2]);
+
+                that.updateBCanvas(hexColor);
             }
+        })(this);
+
+        this.pickBEvent = (function(that) {
+            return function(e) {
+                var loc = windowTocanvas(that.pickerB, e.clientX, e.clientY);
+                var colorData = that.BCanvas.getImageData(loc.x, loc.y, 1, 1);
+                that.currentColor = that.getColorHex(colorData.data[0], colorData.data[1], colorData.data[2]);
+
+                that.updateSample();
+            };
         })(this);
 
         this.init();
@@ -49,11 +67,12 @@ ColorPicker.RGB_picker.prototype = {
         this.pickerRG.width = this.pickerB.width = ((width || 100));
 
         this.initCanvas();
+        this.updateSample();
         this.addEvent();
     },
     addEvent: function() {
-        this.pickerRG.addEventListener(0, 0, this.pickerB.width, 0);
-
+        this.pickerRG.addEventListener('click', this.pickRGEvent, false);
+        this.pickerB.addEventListener('click', this.pickBEvent, false);
     },
     initCanvas: function() {
         var gradient = this.RGCanvas.createLinearGradient(0, 0, this.pickerRG.width, 0);
@@ -66,9 +85,19 @@ ColorPicker.RGB_picker.prototype = {
         this.RGCanvas.fillStyle = gradient;
         this.RGCanvas.fillRect(0, 0, this.pickerRG.width, this.pickerRG.height);
 
-        gradient = this.BCanvas.createLinearGradient(0, 0, this.pickerB.width, 0);
+        this.updateBCanvas('#F00');
+    },
+    getColorHex: function(r, g, b) {
+        return '#' + this.colorHex[parseInt(r / 16)] + this.colorHex[r % 16] +  this.colorHex[parseInt(g / 16)] + this.colorHex[g % 16]
+        + this.colorHex[parseInt(b / 16)] + this.colorHex[b % 16];
+    },
+    updateSample: function() {
+        this.sample.style.backgroundColor = this.currentColor;
+    },
+    updateBCanvas: function(color) {
+        var gradient = this.BCanvas.createLinearGradient(0, 0, this.pickerB.width, 0);
         gradient.addColorStop(0, '#FFFFFF');
-        gradient.addColorStop(1, '#FF0000');
+        gradient.addColorStop(1, color);
         this.BCanvas.fillStyle = gradient;
         this.BCanvas.fillRect(0, 0, this.pickerB.width, this.pickerB.height);
     }
